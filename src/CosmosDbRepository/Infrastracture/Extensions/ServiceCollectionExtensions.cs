@@ -21,12 +21,56 @@ namespace CosmosDbRepository.Infrastracture.Extensions
             )
         {
             CosmosClientOptions options = new CosmosClientOptions() { AllowBulkExecution = true };
+
+            return services.AddCosmosDb(endpointUrl: endpointUrl,
+                                        primaryKey: primaryKey,
+                                        databaseName: databaseName,
+                                        containers: containers,
+                                        options: options);
+        }
+
+        public static IServiceCollection AddCosmosDb(this IServiceCollection services,
+            CosmosDbSettings settings,
+            List<ContainerInfo> containers
+            )
+        {
+            CosmosClientOptions options = new CosmosClientOptions() { AllowBulkExecution = true };
+
+            return services.AddCosmosDb(endpointUrl: settings.EndpointUrl,
+                                        primaryKey: settings.PrimaryKey,
+                                        databaseName: settings.DatabaseName,
+                                        containers: containers,
+                                        options: options);
+        }
+        public static IServiceCollection AddCosmosDb(this IServiceCollection services,
+            CosmosDbSettings settings,
+            List<ContainerInfo> containers,
+            CosmosClientOptions options
+            )
+        {
+            return services.AddCosmosDb(endpointUrl: settings.EndpointUrl,
+                                        primaryKey: settings.PrimaryKey,
+                                        databaseName: settings.DatabaseName,
+                                        containers: containers,
+                                        options: options);
+        }
+
+        public static IServiceCollection AddCosmosDb(this IServiceCollection services,
+            string endpointUrl,
+            string primaryKey,
+            string databaseName,
+            List<ContainerInfo> containers,
+            CosmosClientOptions options
+            )
+        {
             CosmosClient client = new(endpointUrl, primaryKey, options);
-
-            CosmosDbContainerFactory cosmosDbContainerFactory = new CosmosDbContainerFactory(client, databaseName, containers);
-
+            CosmosDbContainerFactory cosmosDbContainerFactory =
+                                                            new(client,
+                                                                databaseName,
+                                                                containers);
             services.AddSingleton<ICosmosDbContainerFactory>(cosmosDbContainerFactory);
             return services;
         }
+
     }
 }
